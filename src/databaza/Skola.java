@@ -3,9 +3,11 @@ package databaza;
 import databaza.osoby.Osoba;
 import databaza.osoby.Ucitel;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
-public class Skola {
+public class Skola implements PropertyChangeListener {
     private String nazev;
     private String adresa;
     private HashMap<String, Fakulta> fakulty;
@@ -15,7 +17,7 @@ public class Skola {
     public Skola(String nazev, String adresa) {
         this.nazev = nazev;
         this.adresa = adresa;
-        this.fakulty = new HashMap<String, Fakulta>();
+        this.fakulty = new HashMap<>();
         this.idGeneratorZaklad = 1;
 
     }
@@ -27,13 +29,20 @@ public class Skola {
         this.idGeneratorZaklad = 1;
     }
 
+    public void propertyChange(PropertyChangeEvent evt) {
+        System.out.println("2. Works ->" +  evt.getNewValue());
+        System.out.println(((HashMap<Predmet, HashMap<Integer, Integer>>) evt.getNewValue()).get(new Predmet("4IZ110", new Ucitel(2, "Jozef", "Mrkvicka","jozm11@vse.cz"), 5)));
+    }
+
     public void addFakulta(Fakulta fakulta){
         fakulty.put(fakulta.getNazov(), fakulta);
+        fakulta.addPropertyChangeListener(this);
     }
 
     public void addFakulta(String nazov, int rozpocet){
         Fakulta fakulta = new Fakulta(nazov, rozpocet);
         fakulty.put(nazov,fakulta);
+        System.out.println(this.fakulty);
     }
 
     public void deleteFakulta(String nazov){
@@ -41,9 +50,19 @@ public class Skola {
     }
 
     public void pridajOsobuNaFakultu(Fakulta fakulta, Osoba osoba){
-        if(fakulty.get(fakulta) != null){
+        if(fakulty.get(fakulta.getNazov()) != null){
             fakulta.pridajDoZoznamuOsob(osoba);
+        }else{
+            System.out.println(this.fakulty);
         }
+    }
+
+    public void zapisStudentoviZnamku(Predmet predmet, int ucitelID, int studentID, int znamka){
+        Ucitel ucitel = (Ucitel) fakulty.get("FIS").getZoznamUcitelov().get(1);
+        Ucitel ucitel2 = (Ucitel) fakulty.get("FIS").getZoznamUcitelov().get(2);
+        ucitel.zapisZnamku(new Predmet("t", ucitel, 5), 1, 2);
+        ucitel2.zapisZnamku(new Predmet("t", ucitel2, 5), 1, 2);
+        ucitel.zapisZnamku(new Predmet("t", ucitel, 5), 1, 2);
     }
 
     public boolean zapisStudentoviDokoncenePredmety(){return false;}; //Funkcia ktora precita harky ucitelov a pozrbiera data konkretneho ziaka a nasledne ich mu zapise, zapisana znamka -> hotovy predmet

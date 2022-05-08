@@ -50,4 +50,19 @@ public abstract  class Osoba {
         return this.meno + " " + this.priezvysko;
         //return "ID: " + this.id + "\n" + "Meno: " + this.meno + "\nPrievisko: " + this.priezvysko + "\nEmail: " + this.email;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Osoba osoba = (Osoba) o;
+
+        return id == osoba.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
 }

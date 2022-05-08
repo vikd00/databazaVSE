@@ -2,38 +2,60 @@ package databaza.osoby;
 
 import databaza.Predmet;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Ucitel extends Osoba {
     private int mesacnaMzda;
     private HashMap<Predmet, HashMap<Integer, Integer>> harokZnamok;
+    private PropertyChangeSupport support;
 
     public Ucitel(int id, String meno, String priezvysko, String email) {
         super(id, meno, priezvysko, email);
+        this.harokZnamok = new HashMap<>();
+        support = new PropertyChangeSupport(this);
     }
 
     public Ucitel(int id, String meno, String priezvysko, String email, int mesacnaMzda) {
         super(id, meno, priezvysko, email);
         this.mesacnaMzda = mesacnaMzda;
+        this.harokZnamok = new HashMap<>();
+        support = new PropertyChangeSupport(this);
+    }
+
+
+
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        support.addPropertyChangeListener(pcl);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        support.removePropertyChangeListener(pcl);
     }
 
     public void zapisZnamku(Predmet predmet, int studentId, int znamka) {
-        if (harokZnamok.get(predmet) != null) {
-            HashMap<Integer, Integer> docasnaHashmap = harokZnamok.get(predmet);
+        HashMap<Predmet, HashMap<Integer, Integer>> harokZnamokTemp = (HashMap<Predmet, HashMap<Integer, Integer>>) this.harokZnamok.clone();
+        if (harokZnamokTemp.get(predmet) != null) {
+            HashMap<Integer, Integer> docasnaHashmap = harokZnamokTemp.get(predmet);
             if (docasnaHashmap.get(studentId) != null) {
                 docasnaHashmap.remove(studentId);
                 docasnaHashmap.put(studentId, znamka);
             } else {
                 docasnaHashmap.put(studentId, znamka);
             }
-            harokZnamok.remove(predmet);
-            harokZnamok.put(predmet, docasnaHashmap);
+            harokZnamokTemp.remove(predmet);
+            harokZnamokTemp.put(predmet, docasnaHashmap);
         } else {
-            harokZnamok.put(predmet, new HashMap<Integer, Integer>() {{
+            harokZnamokTemp.put(predmet, new HashMap<Integer, Integer>() {{
                 put(studentId, znamka);
             }});
         }
+        System.out.println(this.harokZnamok + " + " + harokZnamokTemp);
+        support.firePropertyChange("harokZnamok",  this.harokZnamok, harokZnamokTemp);
+        //this.setHarokZnamok(harokZnamokTemp);
+
     }
 
 
@@ -82,4 +104,6 @@ public class Ucitel extends Osoba {
     public void setEmail(String email) {
         super.setEmail(email);
     }
+
+
 }

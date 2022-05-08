@@ -1,16 +1,25 @@
 package databaza.osoby;
 
+import databaza.Fakulta;
 import databaza.Predmet;
 import databaza.Skola;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Function;
 
 public class Student extends Osoba{
     private String druhStudia;
     private HashMap<Predmet, Integer> odstudovanePredmety;
-    private Function<Skola, HashMap<Predmet, Integer>> func;
+    private double vazenyPriemer;
+    private HashMap<Fakulta, Integer> vazenyPriemerPodlaFakult;
+    private enum DruhyStudia {
+        BAKALARSKE, MAGISTERSKE, DOKTORANTSKE
+    }
 
+    /*
+     *   <====       Pretazovane konstruktory:      ===>
+     */
     public Student(int id, String meno, String priezvysko, String email) {
         super(id, meno, priezvysko, email);
     }
@@ -25,6 +34,43 @@ public class Student extends Osoba{
         this.druhStudia = druhStudia;
         this.odstudovanePredmety = odstudovanePredmety;
     }
+
+    /*
+     *   <====       Vlastne funkcie:      ===>
+     */
+
+    public void vypocitajVazenyPriemer(){
+        // Vytvorenie vzorového ArrayListu s názvom "kredit_znamka"
+        // Prvé číslo predstavuje počet kreditov, druhé známku [[kredit, znamka], [kredit, znamka]...]
+        ArrayList<ArrayList<Integer>> listkreditovZnamkok = new ArrayList<>();
+        double vypVazenyPriemer;
+
+        for(Predmet predmet : odstudovanePredmety.keySet()){
+            ArrayList<Integer> kreditZnamka = new ArrayList<>();
+            kreditZnamka.add(0, predmet.getPocetKreditov()); // na 0 index pridame pocet kreditov
+            kreditZnamka.add(1, odstudovanePredmety.get(predmet)); // na 1 index pridame znamku
+        }
+
+        // Premenná celkovyKredit predstavuje súčet všetkých kreditov.
+        int celkovyKredit = 0;
+        // Premenná sucetZnamok vynásobí každú známku daným kreditom a všetko sčíta
+        // sucetZnamok = (kredit1 * znamka1) + (kredit2 * znamka2) + .....
+        int sucetZnamok = 0;
+        // Program následne vypíše premenné a navzájom ich vydelí, čím získame vážený priemer
+        for (int i = 0; i < listkreditovZnamkok.size(); i++) {
+            celkovyKredit += listkreditovZnamkok.get(i).get(0);
+            sucetZnamok += listkreditovZnamkok.get(i).get(0) * listkreditovZnamkok.get(i).get(1);
+        }
+
+        vypVazenyPriemer = (double) sucetZnamok/celkovyKredit;
+
+        this.vazenyPriemer = vypVazenyPriemer;
+    }
+
+
+    /*
+    *   <====       Gettery a settery:      ===>
+    */
 
     public HashMap<Predmet, Integer> getOdstudovanePredmety() {
         return odstudovanePredmety;
