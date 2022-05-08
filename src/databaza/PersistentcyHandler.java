@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class PersistentcyHandler {
@@ -60,8 +61,8 @@ public class PersistentcyHandler {
 
             while (scanner.hasNextLine()) {
                 String json = scanner.nextLine();
-                DataOsoba testcopy = gson.fromJson(json, DataOsoba.class);
-                System.out.println(testcopy);
+                Type listType = new TypeToken<List<DataOsoba>>() {}.getType();
+                ArrayList<DataOsoba> testcopy = gson.fromJson(json, listType);
             }
             scanner.close();
 

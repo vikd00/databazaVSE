@@ -48,7 +48,6 @@ public abstract  class Osoba {
     @Override
     public String toString() {
         return "ID: " + this.id + " " + this.meno + " " + this.priezvysko;
-        //return "ID: " + this.id + "\n" + "Meno: " + this.meno + "\nPrievisko: " + this.priezvysko + "\nEmail: " + this.email;
     }
 
     @Override

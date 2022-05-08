@@ -44,8 +44,6 @@ public class Skola implements PropertyChangeListener, ISkola {
 
     //Funkcia spustena ked sa na nejakej fakulte zmeni globalny harok so znamkami
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println("2. Works ->" + evt.getNewValue());
-        System.out.println(((HashMap<Predmet, HashMap<Integer, Integer>>) evt.getNewValue()).get(new Predmet("4IZ110", new Ucitel(2, "Jozef", "Mrkvicka", "jozm11@vse.cz"), 5)));
         globalnyHarokZnamok.putAll(((HashMap<Predmet, HashMap<Integer, Integer>>) evt.getNewValue()));
         zapisStudentomDokoncenePredmety();
     }
@@ -112,10 +110,8 @@ public class Skola implements PropertyChangeListener, ISkola {
     public boolean presunOsobuMedziFakultami(int osobneID, String nazovFakultyA, String nazovFakultyB) {
         Osoba tempOsoba = vyhladajPodlaID(osobneID);
         if (this.fakulty.get(nazovFakultyA).getZoznamOsob().get(osobneID) != null) {
-            //System.out.println("A" + fakulty.get(nazovFakultyA).getZoznamOsob());
             this.fakulty.get(nazovFakultyA).odoberOsobu(osobneID);
             this.odstranOsobu(osobneID);
-            //System.out.println("B" + fakulty.get(nazovFakultyA).getZoznamOsob());
         } else {
             return false;
         }

@@ -71,7 +71,6 @@ public class Student extends Osoba {
         vypVazenyPriemer = (double) sucetZnamok / celkovyKredit;
 
         this.vazenyPriemer = vypVazenyPriemer;
-        System.out.println(vypVazenyPriemer);
     }
 
     public void vypocitajVazenyPriemerFakulty(HashMap<Fakulta, HashMap<Predmet, Integer>> fakultaHashMapHashMap) {

@@ -54,9 +54,7 @@ public class Fakulta implements PropertyChangeListener, IFakulta {
 
     //Funkcia na pridanie osoby na fakultu
     public boolean vlozOsobu(Osoba osoba){
-        System.out.println("v>>" + osoba.getId());
         if(this.zoznamOsob.get(osoba.getId()) == null){
-            System.out.println("v>>" + this.getNazov());
             this.zoznamOsob.put(osoba.getId(), osoba);
             return true;
         }
@@ -66,9 +64,7 @@ public class Fakulta implements PropertyChangeListener, IFakulta {
 
     //Funkcia na odobratie osoby z fakulty
     public boolean odoberOsobu(int osobaID) {
-        System.out.println("o>>" + osobaID);
         if(this.zoznamOsob.get(osobaID) != null){
-            System.out.println("v>>" + this.getNazov());
             this.zoznamOsob.remove(osobaID);
             return true;
         }
@@ -104,7 +100,6 @@ public class Fakulta implements PropertyChangeListener, IFakulta {
 
     //Funkcia sa spusta ked observable Ucitel zapise znamku -> evt.getNewValue() obsahuje jeho harok s aktualnymi znamkami
     public void propertyChange(PropertyChangeEvent evt) {
-        System.out.println("1. Works ->" +  evt.getNewValue());
         HashMap<Predmet, HashMap<Integer, Integer>> harokZnamokTemp = (HashMap<Predmet, HashMap<Integer, Integer>>) this.globalnyHarokZnamok.clone();   //Treba naklonovat, inak sa nespusti event zmeny
         harokZnamokTemp.putAll((HashMap<Predmet, HashMap<Integer, Integer>>) evt.getNewValue());
         support.firePropertyChange("globalnyHarokZnamok",  this.globalnyHarokZnamok, harokZnamokTemp);      //Spusti event ktory upozorni observera ze sa zmenil harok
