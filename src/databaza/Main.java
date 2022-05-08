@@ -68,29 +68,33 @@ public class Main {
 
         Externista e1 = new Externista(1,"A","b","SAS");
 
-        try {
-            FileWriter writer = new FileWriter("objects.txt");
-            String json = (new Gson().toJson(e1));
-            writer.write(json+"\n");
-            writer.close();
-        } catch (IOException e) {
-            System.out.println("Couldnt create");
-        }
+//        try {
+//            FileWriter writer = new FileWriter("objects.txt");
+//            String json = (new Gson().toJson(skola.getFakulty().get("FIS").getZoznamOsob().get(4)));
+//            writer.write(json+"\n");
+//            writer.close();
+//        } catch (IOException e) {
+//            System.out.println("Couldnt create");
+//        }
 
-        Gson gson = new Gson();
-        try {
-            Scanner scanner = new Scanner(new File("objects.txt"));
+        PersistentcyHandler persistentcyHandler = new PersistentcyHandler(skola);
+        persistentcyHandler.saveToFile();
+        //persistentcyHandler.loadFromFile();
 
-            while (scanner.hasNextLine()) {
-                String json = scanner.nextLine();
-                Externista testcopy = gson.fromJson(json, Externista.class);
-                System.out.println(testcopy.getMeno() + testcopy.getPriezvysko() + testcopy.getEmail());
-                //System.out.println(testcopy.test2);
-            }
-            scanner.close();
-
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
+//        Gson gson = new Gson();
+//        try {
+//            Scanner scanner = new Scanner(new File("objects.txt"));
+//
+//            while (scanner.hasNextLine()) {
+//                String json = scanner.nextLine();
+//                Student testcopy = gson.fromJson(json, Student.class);
+//                System.out.println(testcopy.getMeno() + testcopy.getPriezvysko() + testcopy.getEmail());
+//                //System.out.println(testcopy.test2);
+//            }
+//            scanner.close();
+//
+//        } catch (FileNotFoundException ex) {
+//            ex.printStackTrace();
+//        }
     }
 }
