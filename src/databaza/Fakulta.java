@@ -52,17 +52,6 @@ public class Fakulta implements PropertyChangeListener, IFakulta {
      *   <====       Vlastne funkcie:      ===>
      */
 
-    public boolean zapisZnamku(int osobneId, Predmet predmet, int znamka){
-        if(this.zoznamOsob.get(osobneId) != null){
-            if(this.zoznamOsob.get(osobneId) instanceof Student){
-                ((Student) this.zoznamOsob.get(osobneId)).addOdstudovanyPredmet(predmet, znamka);
-
-                return true;
-            }
-        }
-        return false;
-    }
-
     //Funkcia na pridanie osoby na fakultu
     public boolean vlozOsobu(Osoba osoba){
         System.out.println("v>>" + osoba.getId());

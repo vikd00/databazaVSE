@@ -47,6 +47,7 @@ public class Skola implements PropertyChangeListener, ISkola {
         System.out.println("2. Works ->" + evt.getNewValue());
         System.out.println(((HashMap<Predmet, HashMap<Integer, Integer>>) evt.getNewValue()).get(new Predmet("4IZ110", new Ucitel(2, "Jozef", "Mrkvicka", "jozm11@vse.cz"), 5)));
         globalnyHarokZnamok.putAll(((HashMap<Predmet, HashMap<Integer, Integer>>) evt.getNewValue()));
+        zapisStudentomDokoncenePredmety();
     }
 
     public boolean pridajFakultu(Fakulta fakulta) {
@@ -173,16 +174,28 @@ public class Skola implements PropertyChangeListener, ISkola {
 //        ucitel.zapisZnamku(new Predmet("t", ucitel, 5), 1, 2);
 //    }
 
+    public HashMap<Fakulta, HashMap<Predmet, Integer>> predmetyStudenta(int idStudenta){
+        HashMap<Fakulta, HashMap<Predmet, Integer>> predmety = new HashMap<>();
+        for (Fakulta f : fakulty.values()){
+            for(Predmet p : f.vygenerujGlobalnyHarokZnamok().keySet()){
+                for(int id : f.vygenerujGlobalnyHarokZnamok().get(p).keySet())
+                if(id == idStudenta){
+                    HashMap<Predmet, Integer> odstudovane = new HashMap<>();
+                    odstudovane.put(p, f.vygenerujGlobalnyHarokZnamok().get(p).get(id));
+                    predmety.put(f,odstudovane);
+                }
+            }
+        }
+        return predmety;
+    }
+
     public boolean zapisStudentomDokoncenePredmety() {
-        //Preloopujeme predmety
-        for (Predmet predmet : globalnyHarokZnamok.keySet()) {
-            //Preloopujeme id ziakov, ktore maju predmet ukonceny
-            for (int id : globalnyHarokZnamok.get(predmet).keySet()) {
-                //Najdeme ziaka na fakulte a zapiseme znamku
-                for (Fakulta fakulta : fakulty.values()) {
-                    if (fakulta.zapisZnamku(id, predmet, globalnyHarokZnamok.get(predmet).get(id))) {
-                        break;
-                    }
+
+        for(Fakulta f : fakulty.values()){
+            for(Osoba o : f.getZoznamOsob().values()){
+                if(o instanceof Student){
+                    ((Student) o).vypocitajVazenyPriemer(predmetyStudenta(o.getId()));
+                    ((Student) o).vypocitajVazenyPriemerFakulty(predmetyStudenta(o.getId()));
                 }
             }
         }
