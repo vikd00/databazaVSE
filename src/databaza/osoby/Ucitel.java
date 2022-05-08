@@ -25,8 +25,6 @@ public class Ucitel extends Osoba {
         support = new PropertyChangeSupport(this);
     }
 
-
-
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         support.addPropertyChangeListener(pcl);
     }
@@ -52,10 +50,8 @@ public class Ucitel extends Osoba {
                 put(studentId, znamka);
             }});
         }
-        System.out.println(this.harokZnamok + " + " + harokZnamokTemp);
         support.firePropertyChange("harokZnamok",  this.harokZnamok, harokZnamokTemp);
-        //this.setHarokZnamok(harokZnamokTemp);
-
+        this.harokZnamok = harokZnamokTemp;
     }
 
 

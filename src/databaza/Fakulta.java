@@ -1,6 +1,7 @@
 package databaza;
 
 import databaza.osoby.Osoba;
+import databaza.osoby.Student;
 import databaza.osoby.Ucitel;
 
 import java.beans.PropertyChangeEvent;
@@ -9,31 +10,36 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Fakulta implements PropertyChangeListener {
-    private String nazov;
-    private int rozpocet;
-    private ArrayList<Osoba>zoznamOsob;
-    private ArrayList<Predmet>predmety;
-    private HashMap<Predmet, HashMap<Integer, Integer>> globalnyHarokZnamok;
-    private PropertyChangeSupport support;
+public class Fakulta implements PropertyChangeListener, IFakulta {
+    private String nazov;   //Nazov fakulty
+    private int rozpocet;   //Rozpocet fakulty
+    private HashMap<Integer, Osoba>zoznamOsob;  //id a objekt osoby
+    private HashMap<String, Predmet> predmety; //Zoznam predmetov na fakulte
+    private HashMap<Predmet, HashMap<Integer, Integer>> globalnyHarokZnamok;    //Globalny harok znamok -> zbiera zaznamy ucitelov
+    private PropertyChangeSupport support;  //Funkcionalita observerov...
 
-
+    /*
+     *   <====       Pretazovane konstruktory:      ===>
+     */
     public Fakulta(String nazov, int rozpocet) {
         this.nazov = nazov;
         this.rozpocet = rozpocet;
         this.globalnyHarokZnamok = new HashMap<>();
+        this.zoznamOsob = new HashMap<>();
+        this.predmety = new HashMap<>();
         support = new PropertyChangeSupport(this);
     }
 
-    public Fakulta(String nazov, int rozpocet, ArrayList<Osoba> zoznamOsob) {
+    public Fakulta(String nazov, int rozpocet, HashMap<Integer, Osoba>zoznamOsob) {
         this.nazov = nazov;
         this.rozpocet = rozpocet;
         this.zoznamOsob = zoznamOsob;
         this.globalnyHarokZnamok = new HashMap<>();
+        this.predmety = new HashMap<>();
         support = new PropertyChangeSupport(this);
     }
 
-    public Fakulta(String nazov, int rozpocet, ArrayList<Osoba> zoznamOsob, ArrayList<Predmet> predmety) {
+    public Fakulta(String nazov, int rozpocet, HashMap<Integer, Osoba>zoznamOsob, HashMap<String, Predmet> predmety) {
         this.nazov = nazov;
         this.rozpocet = rozpocet;
         this.zoznamOsob = zoznamOsob;
@@ -42,26 +48,89 @@ public class Fakulta implements PropertyChangeListener {
         support = new PropertyChangeSupport(this);
     }
 
+    /*
+     *   <====       Vlastne funkcie:      ===>
+     */
+
+    public boolean zapisZnamku(int osobneId, Predmet predmet, int znamka){
+        if(this.zoznamOsob.get(osobneId) != null){
+            if(this.zoznamOsob.get(osobneId) instanceof Student){
+                ((Student) this.zoznamOsob.get(osobneId)).addOdstudovanyPredmet(predmet, znamka);
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Funkcia na pridanie osoby na fakultu
+    public boolean vlozOsobu(Osoba osoba){
+        System.out.println("v>>" + osoba.getId());
+        if(this.zoznamOsob.get(osoba.getId()) == null){
+            System.out.println("v>>" + this.getNazov());
+            this.zoznamOsob.put(osoba.getId(), osoba);
+            return true;
+        }
+
+        return false;
+    }
+
+    //Funkcia na odobratie osoby z fakulty
+    public boolean odoberOsobu(int osobaID) {
+        System.out.println("o>>" + osobaID);
+        if(this.zoznamOsob.get(osobaID) != null){
+            System.out.println("v>>" + this.getNazov());
+            this.zoznamOsob.remove(osobaID);
+            return true;
+        }
+
+        return false;
+    }
+
+    //Funkcia na pridanie predmetu na fakultu
+    public boolean vlozPredmet(Predmet predmet){
+        if(this.predmety.get(predmet.getNazov()) == null){
+            this.predmety.put(predmet.getNazov(), predmet);
+            return true;
+        }
+        return false;
+    }
+
+    //Funkcia na odobratie predmetu z fakulty
+    public boolean odoberPredmet(int nazovPredmetu) {
+        if(this.predmety.get(nazovPredmetu) != null){
+            this.predmety.remove(nazovPredmetu);
+            return true;
+        }
+        return false;
+    }
+
+    //Funkcia na vygenerovanie globalneho harku znamok z fakulty
+    public HashMap<Predmet, HashMap<Integer, Integer>> vygenerujGlobalnyHarokZnamok() {
+        for (Ucitel ucitel : this.getZoznamUcitelov()) {
+            globalnyHarokZnamok.putAll(ucitel.getHarokZnamok());
+        }
+        return this.globalnyHarokZnamok;
+    }
+
+    //Funkcia sa spusta ked observable Ucitel zapise znamku -> evt.getNewValue() obsahuje jeho harok s aktualnymi znamkami
     public void propertyChange(PropertyChangeEvent evt) {
         System.out.println("1. Works ->" +  evt.getNewValue());
-        HashMap<Predmet, HashMap<Integer, Integer>> harokZnamokTemp = (HashMap<Predmet, HashMap<Integer, Integer>>) this.globalnyHarokZnamok.clone();
+        HashMap<Predmet, HashMap<Integer, Integer>> harokZnamokTemp = (HashMap<Predmet, HashMap<Integer, Integer>>) this.globalnyHarokZnamok.clone();   //Treba naklonovat, inak sa nespusti event zmeny
         harokZnamokTemp.putAll((HashMap<Predmet, HashMap<Integer, Integer>>) evt.getNewValue());
-        support.firePropertyChange("globalnyHarokZnamok",  this.globalnyHarokZnamok, harokZnamokTemp);
+        support.firePropertyChange("globalnyHarokZnamok",  this.globalnyHarokZnamok, harokZnamokTemp);      //Spusti event ktory upozorni observera ze sa zmenil harok
         this.globalnyHarokZnamok = harokZnamokTemp;
-        //System.out.println(((HashMap<Predmet, HashMap<Integer, Integer>>) evt.getNewValue()).get(new Predmet("4IZ110", new Ucitel(2, "Jozef", "Mrkvicka","jozm11@vse.cz"), 5)));
     }
 
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        support.addPropertyChangeListener(pcl);
-    }
 
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        support.removePropertyChangeListener(pcl);
-    }
+
+    /*
+     *   <====       Gettery a settery:      ===>
+     */
 
     public ArrayList<Ucitel> getZoznamUcitelov(){
         ArrayList<Ucitel> zoznamUcitelov = new ArrayList<>();
-        for(Osoba osoba : zoznamOsob){
+        for(Osoba osoba : this.zoznamOsob.values()){
             if(osoba instanceof Ucitel){
                 zoznamUcitelov.add((Ucitel) osoba);
                 ((Ucitel) osoba).addPropertyChangeListener(this);
@@ -70,9 +139,18 @@ public class Fakulta implements PropertyChangeListener {
         return zoznamUcitelov;
     }
 
+    //Funkcia ktora je implementuje funkcionalitu PropertyChangeListener
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        support.addPropertyChangeListener(pcl);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        support.removePropertyChangeListener(pcl);
+    }
+
 
     public String getNazov() {
-        return nazov;
+        return this.nazov;
     }
 
     public void setNazov(String nazov) {
@@ -80,36 +158,32 @@ public class Fakulta implements PropertyChangeListener {
     }
 
     public int getRozpocet() {
-        return rozpocet;
+        return this.rozpocet;
     }
 
     public void setRozpocet(int rozpocet) {
         this.rozpocet = rozpocet;
     }
 
-    public ArrayList<Osoba> getZoznamOsob() {
-        return zoznamOsob;
+    public HashMap<Integer, Osoba> getZoznamOsob() {
+        return this.zoznamOsob;
     }
 
-    public void setZoznamOsob(ArrayList<Osoba> zoznamOsob) {
+    public void setZoznamOsob(HashMap<Integer, Osoba>zoznamOsob) {
         this.zoznamOsob = zoznamOsob;
     }
 
-    public void pridajDoZoznamuOsob(Osoba osoba){
-        this.zoznamOsob.add(osoba);
+    public HashMap<String, Predmet> getPredmety() {
+        return this.predmety;
     }
 
-    public void odoberZoZoznamuOsob(Osoba osoba){
-        this.zoznamOsob.remove(osoba);
-    }
-
-    public ArrayList<Predmet> getPredmety() {
-        return predmety;
-    }
-
-    public void setPredmety(ArrayList<Predmet> predmety) {
+    public void setPredmety(HashMap<String, Predmet> predmety) {
         this.predmety = predmety;
     }
+
+    /*
+     *   <====       Override:      ===>
+     */
 
     @Override
     public boolean equals(Object o) {
